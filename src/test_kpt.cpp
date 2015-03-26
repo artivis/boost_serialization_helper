@@ -4,8 +4,9 @@
 // OpenCV headers
 #include <opencv2/highgui/highgui.hpp>
 
-#include "opencv_boost_serialization/opencv_boost_serialization.h"
 #include "opencv_boost_serialization/opencv_rich_feature.h"
+#include "opencv_boost_serialization/opencv_boost_serialization.h"
+
 
 void printkeypoint(const cv::KeyPoint& kpts)
 {
@@ -56,7 +57,8 @@ int main(int argc, char** argv)
   std::cout << "compressed kpt loaded : " << std::endl;
   printkeypoint(clkpts);
 
-  cv::rfeat::richFeature rFeature(img_keypoints.at(0), img_descriptors.row(0));
+  cv::rfeat::richFeature rFeature(img_keypoints.at(0), img_descriptors.row(0),
+                                  cv::Vec3d(4.4,4.4,4.4), 20.20);
 
   cv::rfeat::richFeature lrFeature, clrFeature;
 
@@ -67,7 +69,6 @@ int main(int argc, char** argv)
   cv::rfeat::saveFeature(rFeature, path+"rfeat.cfeat", true);
 
   cv::rfeat::loadFeature(lrFeature, path+"rfeat.feat", false);
-  std::cout << "SAVE" << std::endl;
   cv::rfeat::loadFeature(clrFeature, path+"rfeat.cfeat", true);
 
   std::cout << "loaded richFeature :" << std::endl;
@@ -88,8 +89,8 @@ int main(int argc, char** argv)
 
   cv::rfeat::DescriptorVector desv, desv1;
 
-  desv.push_back(img_descriptors.row(0));
-  desv.push_back(img_descriptors.row(2));
+  desv.push_back(img_descriptors.row(0).clone());
+  desv.push_back(img_descriptors.row(2).clone());
 
   for (size_t i=0; i<desv.size(); ++i)
     std::cout << desv[i] << std::endl;

@@ -198,16 +198,18 @@ namespace cv {
       cv::serialization::loadCVBin(m, filename, compress);
     }
 
-    class richFeatureVector : std::vector<richFeature>
-    {
-      friend class boost::serialization::access;
+    typedef std::vector<richFeature> richFeatureVector;
 
-      template<class Archive>
-      void serialize(Archive &ar, const unsigned int version)
-      {
-        ar & *this;
-      }
-    };
+//    class richFeatureVector : std::vector<richFeature>
+//    {
+//      friend class boost::serialization::access;
+
+////      template<class Archive>
+////      void serialize(Archive &ar, const unsigned int version)
+////      {
+////        ar & *this;
+////      }
+//    };
 
     void saveFeatureVec(richFeatureVector& v, std::string filename, bool compress = false)
     {
@@ -236,51 +238,69 @@ namespace boost {
       ar & feat.stamp;
     }
 
-//    template<class Archive>
-//    void serialize(Archive &ar, cv::rfeat::richFeatureVector& featv, const unsigned int version)
-//    {
-//      split_free(ar, featv, version);
-//    }
-
     template<class Archive>
-    void serialize(Archive &ar, std::vector< cv::Mat >* desv, const unsigned int version)
+    void serialize(Archive &ar, cv::rfeat::DescriptorVector& desv, const unsigned int version)
     {
-      ar & desv;
+      split_free(ar, desv, version);
     }
 
 //    template<class Archive>
-//    void save(Archive &ar, cv::rfeat::richFeatureVector& featv, const unsigned int version)
+//    void save(Archive &ar, cv::rfeat::DescriptorVector& featv, const unsigned int version)
 //    {
-//      ar & featv.size();
-//      std::copy(featv.begin(), featv.end(), ar);
+////      ar & featv.size();
+////      std::copy(featv.begin(), featv.end(), ar);
+
+//      // this is not called
+//      // default stl container save fct called instead
+
+//      std::cout << "dere save" << std::endl;
+//      size_t vec_size = featv.size();
+//      ar << vec_size;
+//      for (size_t i = 0; i <featv.size(); ++i)
+//        ar << featv[i];
 //    }
 
 //    template<class Archive>
-//    void load(Archive &ar, cv::rfeat::richFeatureVector& featv, const unsigned int version)
+//    void load(Archive &ar, cv::rfeat::DescriptorVector& featv, const unsigned int version)
 //    {
-////      boost::archive::iterators::istream_iterator<cv::rfeat::richFeatureVector> iter_begin(ar);
-////      boost::archive::iterators::istream_iterator<cv::rfeat::richFeatureVector> iter_end;
+//      size_t vec_size;
+//      std::cout << "got here" << std::endl;
+////      ar >> vec_size;
 
-////      std::copy(iter_begin, iter_end, std::back_inserter(featv));
-////      cv::rfeat::richFeature r;
-//      cv::rfeat::richFeatureVector featv_tmp;
-//      size_t size;
-//      ar & size;
+////      std::cout << "vec_size" << vec_size << std::endl;
 
-//      featv_tmp.reserve(size);
+//      ar >> featv;
 
-//      ar & featv_tmp;
-////      featv.push_back(r);
-
-////      std::copy(std::istream_iterator<cv::rfeat::richFeature>(ar), std::istream_iterator<cv::rfeat::richFeature>(),
-////                std::back_inserter<cv::rfeat::richFeatureVector>(featv));
-
-
-
-
-////      ar & featv;
-////      featv.push_back(feat);
+////      for (size_t i = 0; i < vec_size; ++i)
+////      {
+////        cv::Mat m;
+////        ar >> m;
+////        std::cout << m << " *0* " << std::endl;
+////        featv.push_back(m);
+////      }
 //    }
+
+    template<class Archive>
+    void serialize(Archive &ar, cv::rfeat::richFeatureVector& featv, const unsigned int version)
+    {
+      split_free(ar, featv, version);
+    }
+
+    template<class Archive>
+    void save(Archive &ar, cv::rfeat::richFeatureVector& featv, const unsigned int version)
+    {
+//      ar & featv.size();
+//      std::copy(featv.begin(), featv.end(), ar);
+      std::cout << "dere save" << std::endl;
+      for (size_t i = 0; i <featv.size(); ++i)
+        ar << featv[i];
+    }
+
+    template<class Archive>
+    void load(Archive &ar, cv::rfeat::richFeatureVector& featv, const unsigned int version)
+    {
+
+    }
 
   } // namespace serialization
 } // namespace boost

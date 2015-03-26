@@ -19,6 +19,8 @@
 #include <boost/iostreams/filter/zlib.hpp>
 #include <boost/archive/iterators/istream_iterator.hpp>
 
+#include <boost/serialization/binary_object.hpp>
+
 // OpenCV header
 #include <opencv2/core/core.hpp>
 #include <opencv2/features2d/features2d.hpp>
@@ -132,18 +134,16 @@ namespace boost {
     template<class Archive>
     void save(Archive &ar, const cv::Mat& m, const unsigned int version)
     {
-      size_t elem_size = m.elemSize();
+      size_t elem_size = m.elemSize(); //CV_ELEM_SIZE(cvmat->type)
       size_t elem_type = m.type();
 
-      ar << m.cols << "\n";
-      ar << m.rows << "\n";
-      ar << elem_size << "\n";
-      ar << elem_type << "\n";
+      ar << m.cols;
+      ar << m.rows;
+      ar << elem_size;
+      ar << elem_type;
 
       const size_t data_size = m.cols * m.rows * elem_size;
       ar << make_array(m.ptr(), data_size);
-//      for (size_t dc = 0; dc < data_size; ++dc)
-//        ar & m.data[dc];
     }
 
     /** Serialization support for cv::Mat */
@@ -152,6 +152,8 @@ namespace boost {
     {
       int cols, rows;
       size_t elem_size, elem_type;
+
+      std::cout << "load cv mat" << std::endl;
 
       ar >> cols;
       ar >> rows;
@@ -162,8 +164,6 @@ namespace boost {
 
       size_t data_size = m.cols * m.rows * elem_size;
       ar >> make_array(m.ptr(), data_size);
-//      for (size_t dc = 0; dc < data_size; ++dc)
-//        ar & m.data[dc];
     }
 
     template<class Archive, class T, int n, int m>
@@ -178,11 +178,9 @@ namespace boost {
     {
       int cols = mat.cols;
       int rows = mat.rows;
-      size_t elem_type = mat.type;
 
       ar << cols;
       ar << rows;
-      ar << elem_type;
 
       ar << make_array(&mat.val[0], cols * rows);
     }
@@ -191,13 +189,10 @@ namespace boost {
     void load(Archive &ar, cv::Matx<T, n, m>& mat, const unsigned int version)
     {
       int cols, rows;
-      size_t elem_type;
 
       ar >> cols;
       ar >> rows;
-      ar >> elem_type;
 
-      const size_t data_size = cols * rows * CV_ELEM_SIZE(elem_type);
       ar >> make_array(&mat.val[0], cols * rows);
     }
 
