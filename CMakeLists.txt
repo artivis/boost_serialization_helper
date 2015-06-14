@@ -17,7 +17,7 @@ catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES ${PROJECT_NAME}
 #  CATKIN_DEPENDS roscpp
-#  DEPENDS boost
+  DEPENDS boost opencv
 )
 
 ###########
@@ -85,7 +85,7 @@ target_link_libraries(test_kpt
 # )
 
 ## Mark cpp header files for installation
-install(DIRECTORY ${PROJECT_NAME}
+install(DIRECTORY include/${PROJECT_NAME}/
    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
    FILES_MATCHING PATTERN "*.h"
 )

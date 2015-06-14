@@ -1,107 +1,41 @@
 #ifndef _OPENCV_BOOST_SERIALIZATION_
 #define _OPENCV_BOOST_SERIALIZATION_
 
-// Std C++ headers
-#include <string>
-#include <fstream>
-
-// Boost headers
-#include <boost/filesystem.hpp>
+// Boost serialization headers
+#include <boost/serialization/split_member.hpp>
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/tracking_enum.hpp>
+
+// Boost filesystem header
+#include <boost/filesystem.hpp>
+
+// Boost ptr_container header
+#include <boost/ptr_container/serialize_ptr_vector.hpp>
+
+// Boost algorithm header
 #include <boost/algorithm/string/predicate.hpp>
+
+// Boost archive headers
+#include <boost/archive/iterators/istream_iterator.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
+
+// Boost iostreams headers
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
-#include <boost/archive/iterators/istream_iterator.hpp>
 
-#include <boost/serialization/binary_object.hpp>
+#include <fstream>
 
 // OpenCV header
 #include <opencv2/core/core.hpp>
 #include <opencv2/features2d/features2d.hpp>
-
-namespace cv
-{
-  namespace serialization
-  {
-
-    namespace io = boost::iostreams;
-
-    //////////////
-    /**
-     * @brief save cv obj into binari file
-     * @param cv obj & file name
-     * @param compress - whether binari file should be compressed or not
-     * @see loadCVBin()
-     */
-    template <class T>
-    void saveCVBin(T& t, std::string filename, bool compress)
-    {
-      std::ofstream ofs(filename.c_str());
-
-      { //Scope ensure out dies before ofs
-        if (compress)
-        {
-          io::filtering_streambuf<io::output> out;
-          out.push(io::zlib_compressor(io::zlib::best_speed));
-          out.push(ofs);
-
-          boost::archive::binary_oarchive oa(out);
-          oa << t;
-        }
-        else
-        {
-          boost::archive::text_oarchive oa(ofs);
-          oa << t;
-        }
-      }
-
-      ofs.close();
-    }
-
-    /**
-     * @brief load cv obj from binari file
-     * @param cv obj & file name
-     * @param compress - whether binari file is compressed or not
-     * @see saveCVBin()
-     */
-    template <class T>
-    void loadCVBin(T& m, std::string filename, bool compress)
-    {
-      std::ifstream ifs(filename.c_str());
-
-      { //Scope ensure in dies before ifs
-
-        if (compress)
-        {
-          io::filtering_streambuf<io::input> in;
-          in.push(io::zlib_decompressor());
-          in.push(ifs);
-
-          boost::archive::binary_iarchive ia(in);
-          ia >> m;
-
-          while (try_stream_next(ia, ifs, m));
-        }
-        else
-        {
-          boost::archive::text_iarchive ia(ifs);
-          ia >> m;
-
-          while (try_stream_next(ia, ifs, m));
-        }
-      }
-
-      ifs.close();
-    }
-
-  } //namespace serialization
-} //namespace cv
 
 namespace
 {
@@ -109,17 +43,142 @@ namespace
   bool try_stream_next(Archive &ar, const Stream &s, Obj &o)
   {
     bool success = false;
-
-    try {
+    try
+    {
       ar >> o;
       success = true;
-    } catch (const boost::archive::archive_exception &e) {
+    }
+    catch (const boost::archive::archive_exception &e)
+    {
       if (e.code != boost::archive::archive_exception::input_stream_error)
         throw;
     }
     return success;
   }
+
+  bool check_path_file(const std::string& file)
+  {
+    boost::filesystem::path p(file);
+    if (!boost::filesystem::is_directory(p.parent_path()) &&
+        p.parent_path() != "")
+    {
+      std::cerr << "ERROR! Directory not found: " << p.parent_path() << std::endl;
+      return false;
+    }
+    else if (!boost::filesystem::is_regular_file(p))
+    {
+      std::cerr << "ERROR! File not found: " << p.filename() <<
+                " in " << p.parent_path() << std::endl;
+      return false;
+    }
+  }
 } // namespace
+
+
+namespace serialization
+{
+  namespace io = boost::iostreams;
+
+  //////////////
+  /**
+  * @brief save obj into binari file
+  * @param obj & file name
+  * @param compress - whether binari file should be compressed or not
+  * @see loadBin()
+  */
+  template <class T>
+  void saveBin(T& t, std::string filename, bool compress)
+  {
+    std::ofstream ofs(filename.c_str());
+    { //Scope ensure out dies before ofs
+      if (compress)
+      {
+        io::filtering_streambuf<io::output> out;
+        out.push(io::zlib_compressor(io::zlib::best_speed));
+        out.push(ofs);
+        boost::archive::binary_oarchive oa(out);
+        oa << t;
+      }
+      else
+      {
+        boost::archive::binary_oarchive oa(ofs);
+        oa << t;
+      }
+    }
+    ofs.close();
+  }
+
+  /**
+  * @brief load obj from binari file
+  * @param obj & file name
+  * @param compress - whether binari file is compressed or not
+  * @see saveBin()
+  */
+  template <class T>
+  void loadBin(T& m, std::string filename, bool compress)
+  {
+    check_path_file(filename);
+
+    std::ifstream ifs(filename.c_str());
+    { //Scope ensure in dies before ifs
+      if (compress)
+      {
+        io::filtering_streambuf<io::input> in;
+        in.push(io::zlib_decompressor());
+        in.push(ifs);
+        boost::archive::binary_iarchive ia(in);
+        ia >> m;
+        while (try_stream_next(ia, ifs, m));
+      }
+      else
+      {
+        boost::archive::binary_iarchive ia(ifs);
+        ia >> m;
+        while (try_stream_next(ia, ifs, m));
+      }
+    }
+    ifs.close();
+  }
+
+  //////////////
+  /**
+  * @brief save obj into binari file
+  * @param obj & file name
+  * @see loadBin()
+  */
+  template <class T>
+  void saveTxt(T& t, std::string filename)
+  {
+    std::ofstream ofs(filename.c_str());
+
+    { //Scope ensure out dies before ofs
+      boost::archive::text_oarchive oa(ofs);
+      oa << t;
+    }
+    ofs.close();
+  }
+
+  /**
+  * @brief load obj from binari file
+  * @param obj & file name
+  * @param compress - whether binari file is compressed or not
+  * @see saveBin()
+  */
+  template <class T>
+  void loadTxt(T& m, std::string filename)
+  {
+    check_path_file(filename);
+
+    std::ifstream ifs(filename.c_str());
+    { //Scope ensure in dies before ifs
+      boost::archive::text_iarchive ia(ifs);
+      ia >> m;
+      while (try_stream_next(ia, ifs, m));
+    }
+    ifs.close();
+  }
+
+} //namespace serialization
 
 namespace boost {
   namespace serialization {

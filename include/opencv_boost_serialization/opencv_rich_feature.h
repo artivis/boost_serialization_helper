@@ -190,41 +190,126 @@ namespace cv {
 
     void saveFeature(richFeature& m, std::string filename, bool compress = false)
     {
-      cv::serialization::saveCVBin(m, filename, compress);
+      serialization::saveBin(m, filename, compress);
     }
 
     void loadFeature(richFeature& m, std::string filename, bool compress = false)
     {
-      cv::serialization::loadCVBin(m, filename, compress);
+      serialization::loadBin(m, filename, compress);
     }
 
     typedef std::vector<richFeature> richFeatureVector;
 
-//    class richFeatureVector : std::vector<richFeature>
-//    {
-//      friend class boost::serialization::access;
-
-////      template<class Archive>
-////      void serialize(Archive &ar, const unsigned int version)
-////      {
-////        ar & *this;
-////      }
-//    };
-
     void saveFeatureVec(richFeatureVector& v, std::string filename, bool compress = false)
     {
-      cv::serialization::saveCVBin(v, filename, compress);
+      serialization::saveBin(v, filename, compress);
     }
 
     void loadFeatureVec(richFeatureVector& v, std::string filename, bool compress = false)
     {
-      cv::serialization::loadCVBin(v, filename, compress);
+      serialization::loadBin(v, filename, compress);
     }
+
+//    void saveRichFeatureVec(const std::string& filename, const richFeature& f)
+//    {
+//      cv::FileStorage fs(filename, cv::FileStorage::WRITE);
+
+//      if (!fs.isOpened())
+//        return;
+
+//      fs << "features " << "[";
+
+//      fs << "{" << "angle" << f.angle << "classid" << f.class_id << "octave" << f.octave
+//         << "pose" << f.pose << "pt" << f.pt << "response" << f.response << "size" << f.size
+//         << "stamp" << f.stamp << "descriptor" << f.descriptor << "}";
+
+//      fs << "]";
+
+//      fs.release();
+//    }
+
+//    void loadRichFeatureVec(const std::string& filename, richFeature& f)
+//    {
+//      cv::FileStorage fs(filename, cv::FileStorage::READ);
+
+//      if (!fs.isOpened())
+//        return;
+
+//      cv::FileNode features = fs["features"];
+//      cv::FileNodeIterator it = features.begin();
+
+//      (*it)["angle"] >> f.angle;
+//      (*it)["classid"] >> f.class_id;
+//      (*it)["octave"] >> f.octave;
+//      (*it)["pose"] >> f.pose;
+//      (*it)["pt"] >> f.pt;
+//      (*it)["response"] >> f.response;
+//      (*it)["size"] >> f.size;
+//      (*it)["stamp"] >> f.stamp;
+//      (*it)["descriptor"] >> f.descriptor;
+
+//      fs.release();
+//    }
+
+//    void saveRichFeatureVec(const std::string& filename, const richFeatureVector& v)
+//    {
+//      cv::FileStorage fs(filename, cv::FileStorage::WRITE); cv::rfeat::richFeature t; t.descriptor.ptr();
+
+//      if (!fs.isOpened())
+//        return;
+
+//      fs << "features " << "[";
+
+//      for (int i=0; i<v.size(); ++i)
+//      {
+//        fs << "{" << "angle" << v.at(i).angle << "classid" << v.at(i).class_id << "octave" << v.at(i).octave
+//           << "pose" << v.at(i).pose << "pt" << v.at(i).pt << "response" << v.at(i).response << "size" << v.at(i).size
+//           << "stamp" << v.at(i).stamp << "descriptor" << v.at(i).descriptor << "}";
+//      }
+
+//      fs << "]";
+
+//      fs.release();
+//    }
+
+//    void loadRichFeatureVec(const std::string& filename, richFeatureVector& v)
+//    {
+//      cv::FileStorage fs(filename, cv::FileStorage::READ);
+
+//      if (!fs.isOpened())
+//        return;
+
+//      v.clear();
+
+//      cv::FileNode features = fs["features"];
+//      cv::FileNodeIterator it = features.begin(), it_end = features.end();
+
+//      for ( ; it!=it_end; ++it)
+//      {
+//        cv::rfeat::richFeature r;
+
+//        (*it)["angle"] >> r.angle;
+//        (*it)["classid"] >> r.class_id;
+//        (*it)["octave"] >> r.octave;
+//        (*it)["pose"] >> r.pose;
+//        (*it)["pt"] >> r.pt;
+//        (*it)["response"] >> r.response;
+//        (*it)["size"] >> r.size;
+//        (*it)["stamp"] >> r.stamp;
+//        (*it)["descriptor"] >> r.descriptor;
+
+//        v.push_back(r);
+//      }
+
+//      fs.release();
+//    }
 
   } //namespace rfeat
 } // namespace cv
 
-
+BOOST_CLASS_TRACKING(cv::rfeat::DescriptorVector, boost::serialization::track_always)
+BOOST_CLASS_TRACKING(cv::rfeat::richFeature, boost::serialization::track_always)
+BOOST_CLASS_TRACKING(cv::rfeat::richFeatureVector, boost::serialization::track_always)
 
 namespace boost {
   namespace serialization {
@@ -238,11 +323,11 @@ namespace boost {
       ar & feat.stamp;
     }
 
-    template<class Archive>
-    void serialize(Archive &ar, cv::rfeat::DescriptorVector& desv, const unsigned int version)
-    {
-      split_free(ar, desv, version);
-    }
+//    template<class Archive>
+//    void serialize(Archive &ar, cv::rfeat::DescriptorVector& desv, const unsigned int version)
+//    {
+//      split_free(ar, desv, version);
+//    }
 
 //    template<class Archive>
 //    void save(Archive &ar, cv::rfeat::DescriptorVector& featv, const unsigned int version)
@@ -280,27 +365,27 @@ namespace boost {
 ////      }
 //    }
 
-    template<class Archive>
-    void serialize(Archive &ar, cv::rfeat::richFeatureVector& featv, const unsigned int version)
-    {
-      split_free(ar, featv, version);
-    }
+//    template<class Archive>
+//    void serialize(Archive &ar, cv::rfeat::richFeatureVector& featv, const unsigned int version)
+//    {
+//      split_free(ar, featv, version);
+//    }
 
-    template<class Archive>
-    void save(Archive &ar, cv::rfeat::richFeatureVector& featv, const unsigned int version)
-    {
-//      ar & featv.size();
-//      std::copy(featv.begin(), featv.end(), ar);
-      std::cout << "dere save" << std::endl;
-      for (size_t i = 0; i <featv.size(); ++i)
-        ar << featv[i];
-    }
+//    template<class Archive>
+//    void save(Archive &ar, cv::rfeat::richFeatureVector& featv, const unsigned int version)
+//    {
+////      ar & featv.size();
+////      std::copy(featv.begin(), featv.end(), ar);
+//      std::cout << "dere save" << std::endl;
+//      for (size_t i = 0; i <featv.size(); ++i)
+//        ar << featv[i];
+//    }
 
-    template<class Archive>
-    void load(Archive &ar, cv::rfeat::richFeatureVector& featv, const unsigned int version)
-    {
+//    template<class Archive>
+//    void load(Archive &ar, cv::rfeat::richFeatureVector& featv, const unsigned int version)
+//    {
 
-    }
+//    }
 
   } // namespace serialization
 } // namespace boost

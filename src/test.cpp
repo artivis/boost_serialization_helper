@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <ros/package.h>
 
-#include <opencv_boost_serialization/opencv_boost_serialization.h>
+#include "opencv_boost_serialization/opencv_boost_serialization.h"
 
 int main(int argc, char** argv)
 {
@@ -28,22 +28,22 @@ int main(int argc, char** argv)
   std::cout << "pose 3i : " << pose_3i << std::endl;
   std::cout << "pose 4d : " << pose_4d << std::endl;
 
-  cv::serialization::saveCVBin(pose_3i, path+"pose3i.feat", false);
-  cv::serialization::saveCVBin(pose_4d, path+"pose4d.feat", false);
+  serialization::saveBin(pose_3i, path+"pose3i.feat", false);
+  serialization::saveBin(pose_4d, path+"pose4d.feat", false);
 
   std::cout << "vec saved." << std::endl;
 
-  cv::serialization::loadCVBin(lpose_3i, path+"pose3i.feat", false);
-  cv::serialization::loadCVBin(lpose_4d, path+"pose4d.feat", false);
+  serialization::loadBin(lpose_3i, path+"pose3i.feat", false);
+  serialization::loadBin(lpose_4d, path+"pose4d.feat", false);
 
   std::cout << "loaded lpose_3i : " << lpose_3i << std::endl;
   std::cout << "loaded lpose_4d : " << lpose_4d << std::endl;
 
-  cv::serialization::saveCVBin(pose_3i, path+"pose3i.cfeat", true);
-  cv::serialization::saveCVBin(pose_4d, path+"pose4d.cfeat", true);
+  serialization::saveBin(pose_3i, path+"pose3i.cfeat", true);
+  serialization::saveBin(pose_4d, path+"pose4d.cfeat", true);
 
-  cv::serialization::loadCVBin(lcpose_3i, path+"pose3i.cfeat", true);
-  cv::serialization::loadCVBin(lcpose_4d, path+"pose4d.cfeat", true);
+  serialization::loadBin(lcpose_3i, path+"pose3i.cfeat", true);
+  serialization::loadBin(lcpose_4d, path+"pose4d.cfeat", true);
 
   std::cout << "loaded lcpose_3i : " << lcpose_3i << std::endl;
   std::cout << "loaded lcpose_4d : " << lcpose_4d << std::endl;
@@ -61,22 +61,22 @@ int main(int argc, char** argv)
   std::cout << "pt_2i : " << pt_2i << std::endl;
   std::cout << "pt_d3 : " << pt_d3 << std::endl;
 
-  cv::serialization::saveCVBin(pt_2i, path+"pt2i.feat", false);
-  cv::serialization::saveCVBin(pt_d3, path+"pt3d1.feat", false);
+  serialization::saveBin(pt_2i, path+"pt2i.feat", false);
+  serialization::saveBin(pt_d3, path+"pt3d1.feat", false);
 
   std::cout << "points saved." << std::endl;
 
-  cv::serialization::loadCVBin(lpt_2i, path+"pt2i.feat", false);
-  cv::serialization::loadCVBin(lpt_d3, path+"pt3d1.feat", false);
+  serialization::loadBin(lpt_2i, path+"pt2i.feat", false);
+  serialization::loadBin(lpt_d3, path+"pt3d1.feat", false);
 
   std::cout << "loaded lpose_3i : " << lpt_2i << std::endl;
   std::cout << "loaded lpose_4d : " << lpt_d3 << std::endl;
 
-  cv::serialization::saveCVBin(pt_2i, path+"pt2i.cfeat", true);
-  cv::serialization::saveCVBin(pt_d3, path+"pt3d1.cfeat", true);
+  serialization::saveBin(pt_2i, path+"pt2i.cfeat", true);
+  serialization::saveBin(pt_d3, path+"pt3d1.cfeat", true);
 
-  cv::serialization::loadCVBin(lcpt_2i, path+"pt2i.cfeat", true);
-  cv::serialization::loadCVBin(lcpt_d3, path+"pt3d1.cfeat", true);
+  serialization::loadBin(lcpt_2i, path+"pt2i.cfeat", true);
+  serialization::loadBin(lcpt_d3, path+"pt3d1.cfeat", true);
 
   std::cout << "loaded lcpose_3i : " << lcpt_2i << std::endl;
   std::cout << "loaded lcpose_4d : " << lcpt_d3 << std::endl;
