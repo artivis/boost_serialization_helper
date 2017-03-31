@@ -189,6 +189,15 @@ namespace serialization
     {
       split_free(ar, m, version);
     }
+    
+    template<class Archive, typename _Scalar>
+    void serialize(Archive & ar, Eigen::Quaternion<_Scalar>& q, const unsigned int /*version*/)
+    {
+      ar & q.w();
+      ar & q.x();
+      ar & q.y();
+      ar & q.z();
+    }
 
 } // namespace serialization
 } // namespace boost
